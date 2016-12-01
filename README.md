@@ -4,7 +4,7 @@
 
 In Cycle.js, it's idiomatic to wrap up side effects in drivers, so that apps can easily be composed and tested.
 
-One side effect that is often ignored is time. Operators like `delay`, `debounce` and `periodic`/`interval` are problematic, because they introduce unecesseary delays in automated tests.
+One type of side effect that is often overlooked is time. Operators like `delay`, `debounce` and `periodic`/`interval` are problematic, because they introduce unecessecary delays in automated tests, and can cause tests to intermittently fail thanks to timing errors.
 
 ## Usage
 
@@ -44,7 +44,7 @@ const Time = timeDriver();
 ```
 
 ### makeTimeDriver({interval = 20})
-A factor for the time driver.
+A factory for the time driver.
 
 Takes an interval that determines how much time each character in a `diagram` represents.
 
