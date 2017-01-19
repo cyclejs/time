@@ -137,7 +137,7 @@ describe('double', () => {
 
 A few things have changed here. First is that we're now creating our input streams from diagrams using `@cycle/time`. Instead of scheduling their events using `setTimeout`, which is slow and inconsistent, their events are scheduled on a central queue inside of `@cycle/time`.
 
-This queue is processed when we call `Time.run();`. Even though each character in the diagram still represents 20ms, we don't have to wait all that time.  Instead, the application's time is managed by `@cycle/time`, so we can run on "virtual time". This means this test is much faster than the equivalent using `xstream` `fromDiagram`, over 10x faster.
+This queue is processed when we call `Time.run();`. Even though each character in the diagram still represents 20ms, we don't have to wait all that time.  Instead, the application's time is managed by `@cycle/time`, so we can run on "virtual time". This means this test is much faster than the equivalent using `xstream` `fromDiagram`, around 100x faster.
 
 This approach is comparable to RxJS's schedulers and HistoricalScheduler approach, but works with `xstream` and potentially other libraries.
 
