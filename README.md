@@ -9,13 +9,13 @@ Features
 
 `@cycle/time` is split into two parts, `timeDriver` and `mockTimeSource`.
 
-Development/production - `timeDriver`
+**Development/production** - `timeDriver`
 
  * Super smooth side effect free implementations of `periodic`, `delay`, `debounce` and more
  * Enables excellent dev tooling like hot code reloading and time travel
  * Powered by `requestAnimationFrame`, so your apps will be faster and smoother
 
-Testing - `mockTimeSource`
+**Testing** - `mockTimeSource`
 
  * Write tests using marble diagram syntax, including expected output
  * Blazing fast! 100x faster than tests written with `xstream`'s `fromDiagram`
