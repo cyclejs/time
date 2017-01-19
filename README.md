@@ -49,7 +49,7 @@ const drivers = {
 }
 ```
 
-Here is a simple timer using `periodic`;
+Here is a simple timer using `periodic`.
 
 ```js
 function Timer (sources) {
