@@ -34,6 +34,7 @@ Usage (Development / Production)
 `@cycle/time` exports a `timeDriver`, a driver that provides time based streams and operators.
 
 Firstly import the `timeDriver`.
+<!-- share-code-between-examples -->
 
 ```js
 import {timeDriver} from '@cycle/time';
@@ -165,9 +166,9 @@ describe('xstream delay', () => {
 
       error: done,
       complete: done
-    })
+    });
   });
-]);
+});
 ```
 
 This test will take at least 200ms to run, because once again `delay` is implemented using `setTimeout`. This is also subject to timing problems, which stops us from expressing our expected output using a marble diagram. Here's the same test written with `@cycle/time`.
