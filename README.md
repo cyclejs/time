@@ -340,7 +340,7 @@ Time.run();
 
 ### `mockTimeSource({interval = 20})`
 
-Returns a `TimeSource` object, with all of the methods from the `timeDriver` (`debounce`, `delay`, `periodic`, `throttle`), along with a collection of methods useful for writing unit tests.
+Returns a `TimeSource` object, with all of the methods from the `timeDriver` (`debounce`, `delay`, `periodic`, `throttle`), along with `diagram`, `assertEqual` and `run`, which are useful for writing unit tests.
 
 Instead of all delays and debounces running in real time in your tests, causing unecessary delays, they will be run in "virtual time".
 
