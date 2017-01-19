@@ -412,10 +412,6 @@ Time.assertEqual(
 Time.run(err => console.error(err));
 ```
 
-## Install
-
-Yet to be released
-
 ## License
 
 MIT
