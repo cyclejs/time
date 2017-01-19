@@ -376,7 +376,10 @@ Time.run();
 // 2
 // 3
 
-Time.diagram('---a---b---c---|', {a: 'foo', b: 'bar', c: 'baz'});
+Time.diagram(
+  '---a---b---c---|',
+  {a: 'foo', b: 'bar', c: 'baz'}
+).subscribe(i => console.log(i));
 
 Time.run();
 
