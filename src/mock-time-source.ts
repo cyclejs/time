@@ -68,7 +68,7 @@ function mockTimeSource ({interval = 20} = {}): any {
 
   const timeSource = {
     diagram: makeDiagram(scheduler.add, currentTime, interval, setMaxTime),
-    record: makeRecord(scheduler.add, currentTime, interval),
+    record: makeRecord(scheduler.add, currentTime),
     assertEqual: makeAssertEqual(() => timeSource, scheduler.add, currentTime, interval, addAssert),
 
     delay: makeDelay(scheduler.add, currentTime),

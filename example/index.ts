@@ -1,77 +1,121 @@
-import {run} from '@cycle/xstream-run';
-import {makeDOMDriver, div, input} from '@cycle/dom';
-import {timeDriver} from '../';
-import sampleCombine from 'xstream/extra/sampleCombine';
+import {run} from '@cycle/run';
+import {makeDOMDriver, div, input, pre, h} from '@cycle/dom';
+import {timeDriver} from '../src/';
+import xs from 'xstream';
 
-const maxSpeed = 500;
-const maxHeight = 100;
-const maxWidth = 15 * 50;
-const maxNodeCount = 100;
+const TOTAL_VIRTUAL_TIME = 10000;
+const WIDTH = window.innerWidth;
+const Y_OFFSET = 25;
 
-function range (start, end) {
-  let i = 0;
-  return new Array(end - start).fill(0).map(() => {
-    return start + i++;
+function renderNextEntry (entry) {
+  const x = entry.time / TOTAL_VIRTUAL_TIME * WIDTH;
+
+  return (
+    h('g', [
+      h('circle', {
+        attrs: {
+          cx: x,
+          cy: Y_OFFSET,
+          r: 15,
+          fill: '#82d736',
+          stroke: '#323232',
+          'stroke-width': 1.5
+        }
+      }),
+      h('text', {
+        attrs: {
+          x: x,
+          y: Y_OFFSET,
+          fill: '#323232',
+          stroke: '#323232',
+          'dominant-baseline': 'central',
+          'text-anchor': 'middle',
+          'font-family': 'sans-serif',
+          'font-weight': 'lighter'
+        }
+      }, entry.value)
+    ])
+  );
+}
+
+function renderCompleteEntry (entry) {
+  const x = entry.time / TOTAL_VIRTUAL_TIME * WIDTH;
+  const height = 45;
+
+  return h('line', {
+    attrs: {
+      x1: x,
+      y1: Y_OFFSET  - height / 2,
+      x2: x,
+      y2: Y_OFFSET + height / 2,
+      stroke: "#323232",
+      'stroke-width': 2.3
+    }
   });
 }
 
-function fancyColor (timestamp, i, offset) {
-  return Math.abs(Math.round((timestamp + (offset * 100) + (i * 20)) % 512) - 255);
+function renderErrorEntry (entry) {
+  const errorSize = 25;
+  const x = entry.time / TOTAL_VIRTUAL_TIME * WIDTH;
+
+  return h('g', [
+    h('line', {
+      attrs: {
+        x1: x - errorSize / 2,
+        y1: Y_OFFSET - errorSize / 2,
+        x2: x + errorSize / 2,
+        y2: Y_OFFSET + errorSize / 2,
+        stroke: 'red',
+        'stroke-width': 3
+      }
+    }),
+    h('line', {
+      attrs: {
+        x1: x + errorSize / 2,
+        y1: Y_OFFSET - errorSize / 2,
+        x2: x - errorSize / 2,
+        y2: Y_OFFSET + errorSize / 2,
+        stroke: 'red',
+        'stroke-width': 3
+      }
+    })
+  ])
 }
 
-function nodes (timestamp, speed, height, nodeCount) {
-  const increment = maxWidth / nodeCount;
-
+function logToSvgDiagram (log) {
   return (
-    div('.nodes', range(1, nodeCount).map(i =>
-      div('.node', {
-        key: i,
-        style: {
-          position: `absolute`,
-          color: `rgb(${fancyColor(timestamp, i, 0)}, ${fancyColor(timestamp, i, 1)}, ${fancyColor(timestamp, i, 2)})`,
-          left: (increment * i) + 'px',
-          top: (Math.sin((increment * i) + timestamp / (maxSpeed - speed)) * height + 150).toString() + 'px'
+    h('svg', {attrs: {width: WIDTH}}, [
+      h('line', {
+        attrs: {
+          x1: 0,
+          y1: Y_OFFSET,
+          x2: WIDTH,
+          y2: Y_OFFSET,
+          stroke: '#323232',
+          'stroke-width': 1.5
         }
-      }, '.')
-    ))
+      }),
+      ...log.filter(entry => entry.type === 'complete').map(renderCompleteEntry),
+      ...log.filter(entry => entry.type === 'next').map(renderNextEntry),
+      ...log.filter(entry => entry.type === 'error').map(renderErrorEntry)
+    ])
   );
 }
 
 function main (sources) {
   const {DOM, Time} = sources;
 
-  const speed$ = DOM
-    .select('.speed')
-    .events('input')
-    .map(ev => ev.target.value)
-    .startWith(maxSpeed / 2);
+  const number$ = Time.periodic(1000).map(i => {
+    if (i === 2) {
+      throw new Error("thud");
+    }
+    return i;
+  });
 
-  const height$ = DOM
-    .select('.height')
-    .events('input')
-    .map(ev => ev.target.value)
-    .startWith(maxHeight / 2);
-
-  const nodeCount$ = DOM
-    .select('.node-count')
-    .events('input')
-    .map(ev => ev.target.value)
-    .startWith(45);
-
-  const time$ = Time.animationFrames().map(({time}) => time);
+  const record$ = Time.record(number$);
 
   return {
-    DOM: time$.compose(sampleCombine(speed$, height$, nodeCount$)).map(([timestamp, speed, height, nodeCount]) =>
-      div('.time', [
-        nodes(timestamp, speed, height, nodeCount),
-        'Speed',
-        input('.speed', {props: {type: 'range', min: 1, max: maxSpeed, value: speed}}),
-        'Height',
-        input('.height', {props: {type: 'range', min: 1, max: maxHeight, value: height}}),
-        'Nodes',
-        input('.node-count', {props: {type: 'range', min: 1, max: maxNodeCount, value: nodeCount}}),
-      ])
-    )
+    DOM: record$.map(logToSvgDiagram)
   };
 }
 

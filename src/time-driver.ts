@@ -8,6 +8,7 @@ import {makePeriodic} from './periodic';
 import {makeThrottle} from './throttle';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
+import {makeRecord} from './record';
 import {runVirtually} from './run-virtually';
 import {TimeSource} from './time-source';
 
@@ -106,6 +107,7 @@ function timeDriver (_, streamAdapter): any {
     periodic: makePeriodic(scheduler.add, currentTime),
     throttle: makeThrottle(scheduler.add, currentTime),
     throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
+    record: makeRecord(scheduler.add, currentTime),
     _time: currentTime,
     _scheduler: scheduler.add,
     _pause: pause,

@@ -27,7 +27,7 @@ function recordListener (currentTime, outListener) {
   }
 }
 
-function makeRecord (schedule, currentTime, interval) {
+function makeRecord (schedule, currentTime) {
   return function record (stream: Stream<any>): Stream<any> {
     const recordedStream = xs.createWithMemory({
       start (listener) {
