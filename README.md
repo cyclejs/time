@@ -363,6 +363,73 @@ const frames$ = Time.animationFrames();
 
 For more information on `requestAnimationFrame`, see the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame).
 
+### `tween`
+
+Creates a stream of numbers emitted in a quick burst, following a numeric function like sine or elastic or quadratic. tween() is meant for creating streams for animations.
+
+Example:
+
+```js
+import {mockTimeSource} from 'xstream/extra/tween'
+
+const stream = Time.tween({
+  from: 20,
+  to: 100,
+  ease: tween.exponential.easeIn,
+  duration: 1000, // milliseconds
+})
+
+stream.addListener({
+  next: (x) => console.log(x),
+  error: (err) => console.error(err),
+  complete: () => console.log('concat completed'),
+})
+
+Time.run();
+```
+
+The stream would behave like the plot below:
+
+```text
+100                  #
+|
+|
+|
+|
+80                  #
+|
+|
+|
+|                  #
+60
+|
+|                 #
+|
+|                #
+40
+|               #
+|              #
+|            ##
+|         ###
+20########
++---------------------> time
+```
+
+Provide a configuration object with **from**, **to**, **duration**, **ease**, **interval** (optional), and this factory function will return a stream of numbers following that pattern. The first number emitted will be `from`, and the last number will be `to`. The numbers in between follow the easing function you specify in `ease`, and the stream emission will last in total `duration` milliseconds.
+
+The easing functions are attached to `Time.tween` too, such as `tween.linear.ease`, `tween.power2.easeIn`, `tween.exponential.easeOut`, etc.  Here is a list of all the available easing options:
+
+- `tween.linear` with ease
+- `tween.power2` with easeIn, easeOut, easeInOut
+- `tween.power3` with easeIn, easeOut, easeInOut
+- `tween.power4` with easeIn, easeOut, easeInOut
+- `tween.exponential` with easeIn, easeOut, easeInOut
+- `tween.back` with easeIn, easeOut, easeInOut
+- `tween.bounce` with easeIn, easeOut, easeInOut
+- `tween.circular` with easeIn, easeOut, easeInOut
+- `tween.elastic` with easeIn, easeOut, easeInOut
+- `tween.sine` with easeIn, easeOut, easeInOut
+
 ### `mockTimeSource({interval = 20})`
 
 Returns a `TimeSource` object, with all of the methods from the `timeDriver` (`debounce`, `delay`, `periodic`, `throttle`), along with `diagram`, `assertEqual` and `run`, which are useful for writing unit tests.

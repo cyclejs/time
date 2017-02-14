@@ -12,6 +12,7 @@ import {makeAssertEqual} from './assert-equal';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {makeRecord} from './record';
+import {makeTween} from './tween';
 import {runVirtually} from './run-virtually';
 import {MockTimeSource} from './time-source';
 
@@ -75,6 +76,7 @@ function mockTimeSource ({interval = 20} = {}): any {
     debounce: makeDebounce(scheduler.add, currentTime),
     periodic: makePeriodic(scheduler.add, currentTime),
     throttle: makeThrottle(scheduler.add, currentTime),
+    tween: makeTween(() => timeSource),
 
     animationFrames: () => timeSource.periodic(16).map(frame),
     throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),

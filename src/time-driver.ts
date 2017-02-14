@@ -6,6 +6,7 @@ import {makeDelay} from './delay';
 import {makeDebounce} from './debounce';
 import {makePeriodic} from './periodic';
 import {makeThrottle} from './throttle';
+import {makeTween} from './tween';
 import {makeAnimationFrames} from './animation-frames';
 import {makeThrottleAnimation} from './throttle-animation';
 import {runVirtually} from './run-virtually';
@@ -106,6 +107,7 @@ function timeDriver (_, streamAdapter): any {
     periodic: makePeriodic(scheduler.add, currentTime),
     throttle: makeThrottle(scheduler.add, currentTime),
     throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
+    tween: makeTween(() => timeSource),
     _time: currentTime,
     _scheduler: scheduler.add,
     _pause: pause,

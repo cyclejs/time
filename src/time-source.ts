@@ -1,5 +1,6 @@
 import {Stream} from 'xstream';
 import {Frame} from './animation-frames';
+import {TweenFactory} from './tween';
 
 export type Operator = <T>(stream: Stream<T>) => Stream<T>;
 
@@ -10,6 +11,7 @@ export interface TimeSource {
   throttle (period: number): Operator;
   periodic (period: number): Stream<number>;
   throttleAnimation: Operator;
+  tween: TweenFactory;
 }
 
 export interface MockTimeSource extends TimeSource {
