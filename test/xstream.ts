@@ -1,6 +1,10 @@
 import {mockTimeSource} from '../src/';
+import {MockTimeSource} from '../src/time-source';
 import {setAdapt} from '@cycle/run/lib/adapt';
-import xs from 'xstream';
+import xs, {Stream} from 'xstream';
+
+import {VNode} from '@cycle/dom';
+import {logToSvgDiagram} from '../src/log-to-svg-diagram';
 
 setAdapt(stream => stream);
 
@@ -52,10 +56,60 @@ describe('xstream', () => {
     });
   });
 
-  describe('merge', () => {
-    it('merges two streams', (done) => {
-      const Time = mockTimeSource();
+  function asDiagram (name) {
+    return function doTheThing (label, testCallback) {
+      it(label, (done) => {
+        const Time = mockTimeSource();
+        const oldTimeDiagram = Time.diagram;
+        const oldAssertEqual = Time.assertEqual;
 
+        let inputStreams = [];
+        let actualStream;
+
+        Time.diagram = function (diagramString: string, values?: Object): Stream<any> {
+          const stream = oldTimeDiagram(diagramString, values || {});
+
+          inputStreams.push(stream);
+
+          return stream;
+        };
+
+        Time.assertEqual = function (actual: Stream<any>, expected: Stream<any>) {
+          oldAssertEqual(actual, expected);
+
+          inputStreams = inputStreams
+            .filter(stream => stream !== actual && stream !== expected);
+
+          actualStream = actual;
+        }
+
+        testCallback(Time);
+
+        const recordedStreams = inputStreams.map(stream => streamToSvgDiagram(stream, Time));
+        const recordedActual = streamToSvgDiagram(actualStream, Time);
+
+        const things = xs.combine(recordedActual, ...recordedStreams);
+
+        things.addListener({
+          next ([actual, ...others]) {
+            console.log(actual, others)
+          }
+        });
+
+        Time.run(done);
+      });
+    }
+  }
+
+  function streamToSvgDiagram (stream: Stream<any>, Time: MockTimeSource): Stream<VNode> {
+    return stream
+      .compose(Time.record)
+      .last()
+      .map(logToSvgDiagram);
+  }
+
+  describe.only('merge', () => {
+    asDiagram('merge')('merges two streams', (Time) => {
       const A        = Time.diagram('-----1-----1--|');
       const B        = Time.diagram('--2-----2-----|');
 
@@ -64,8 +118,6 @@ describe('xstream', () => {
       const expected = Time.diagram('--2--1--2--1--|');
 
       Time.assertEqual(actual, expected);
-
-      Time.run(done);
     });
   });
 
