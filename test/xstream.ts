@@ -3,8 +3,11 @@ import {MockTimeSource} from '../src/time-source';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import xs, {Stream} from 'xstream';
 
-import {VNode} from '@cycle/dom';
-import {logToSvgDiagram} from '../src/log-to-svg-diagram';
+import {VNode, makeHTMLDriver} from '@cycle/dom';
+import {renderTestDiagram, logToSvgDiagram} from '../src/log-to-svg-diagram';
+
+import * as fs from 'fs';
+import * as path from 'path';
 
 setAdapt(stream => stream);
 
@@ -85,27 +88,39 @@ describe('xstream', () => {
 
         testCallback(Time);
 
-        const recordedStreams = inputStreams.map(stream => streamToSvgDiagram(stream, Time));
-        const recordedActual = streamToSvgDiagram(actualStream, Time);
+        const recordedStreams = inputStreams.map(stream => recordStream(stream, Time));
+        const recordedActual = recordStream(actualStream, Time);
 
         const things = xs.combine(recordedActual, ...recordedStreams);
 
-        things.addListener({
-          next ([actual, ...others]) {
-            console.log(actual, others)
-          }
-        });
+        function writeHtmlToFile (html: string) {
+          fs.mkdir('diagrams', (err) => {
+            fs.writeFile(path.join('.', 'diagrams', `${name}.svg`), html);
+          });
+        }
+
+        const htmlDriver = makeHTMLDriver(writeHtmlToFile)
+
+        const vnodes$ = things.map(([actual, ...others]) => renderTestDiagram(name, actual, others));
+
+        htmlDriver(vnodes$, 'this string does nothing');
+
+        // things.addListener({
+        //   next ([actual, ...others]) {
+        //     renderTestDiagram(name, actual, others);
+        //     console.log(actual, others)
+        //   }
+        // });
 
         Time.run(done);
       });
     }
   }
 
-  function streamToSvgDiagram (stream: Stream<any>, Time: MockTimeSource): Stream<VNode> {
+  function recordStream (stream: Stream<any>, Time: MockTimeSource): Stream<Array<any>> {
     return stream
       .compose(Time.record)
-      .last()
-      .map(logToSvgDiagram);
+      .last();
   }
 
   describe.only('merge', () => {
