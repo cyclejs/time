@@ -1,9 +1,13 @@
 import {svg, div, input, pre, h, VNode} from '@cycle/dom';
 
-const TOTAL_VIRTUAL_TIME = 10000;
+const TOTAL_VIRTUAL_TIME = 300;
 const WIDTH = 800;
 const Y_OFFSET = 25;
-const PADDING = 50;
+const PADDING = 70;
+const SVG_ATTRS = {
+  xmlns: 'http://www.w3.org/2000/svg',
+  'xmlns:xlink': 'http://www.w3.org/1999/xlink'
+}
 
 function renderTestDiagram (name: string, actual: Array<any>, others: Array<any>): VNode {
   // given a name and some input streams as hyperscript and an actual stream as hyperscript
@@ -16,23 +20,24 @@ function renderTestDiagram (name: string, actual: Array<any>, others: Array<any>
   //  ---------
   //
   // --2-1-2-1---|
-  const labelRelativePosition = others.length * PADDING;
+  const labelRelativePosition = others.length * PADDING + PADDING;
   const actualRelativePosition = labelRelativePosition + PADDING;
 
   return (
-    svg([
-      ...others.map((log, i) => logToSvgDiagram(log, i * PADDING)),
+    h('svg', {attrs: SVG_ATTRS}, [
+      ...others.map((log, i) => logToSvgDiagram(log, i * PADDING + PADDING)),
       renderLabel(name, labelRelativePosition),
       logToSvgDiagram(actual, actualRelativePosition)
     ])
   )
 }
 
+// TODO: Update snabbdom-to-html with text patch
 function renderLabel (label: string, position: number): VNode {
   return (
     h('text', {
       attrs: {
-        x: 0,
+        x: WIDTH / 2,
         y: position,
         fill: '#323232',
         stroke: '#323232',
