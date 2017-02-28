@@ -3,11 +3,7 @@ import {MockTimeSource} from '../src/time-source';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import xs, {Stream} from 'xstream';
 
-import {VNode, makeHTMLDriver} from '@cycle/dom';
-import {renderTestDiagram, logToSvgDiagram} from '../src/log-to-svg-diagram';
-
-import * as fs from 'fs';
-import * as path from 'path';
+import {asDiagram} from '../src/generate-marble-diagram';
 
 setAdapt(stream => stream);
 
@@ -59,71 +55,7 @@ describe('xstream', () => {
     });
   });
 
-  function asDiagram (name) {
-    return function doTheThing (label, testCallback) {
-      it(label, (done) => {
-        const Time = mockTimeSource();
-        const oldTimeDiagram = Time.diagram;
-        const oldAssertEqual = Time.assertEqual;
-
-        let inputStreams = [];
-        let actualStream;
-
-        Time.diagram = function (diagramString: string, values?: Object): Stream<any> {
-          const stream = oldTimeDiagram(diagramString, values || {});
-
-          inputStreams.push(stream);
-
-          return stream;
-        };
-
-        Time.assertEqual = function (actual: Stream<any>, expected: Stream<any>) {
-          oldAssertEqual(actual, expected);
-
-          inputStreams = inputStreams
-            .filter(stream => stream !== actual && stream !== expected);
-
-          actualStream = actual;
-        }
-
-        testCallback(Time);
-
-        const recordedStreams = inputStreams.map(stream => recordStream(stream, Time));
-        const recordedActual = recordStream(actualStream, Time);
-
-        const things = xs.combine(recordedActual, ...recordedStreams);
-
-        function writeHtmlToFile (html: string) {
-          fs.mkdir('diagrams', (err) => {
-            fs.writeFile(path.join('.', 'diagrams', `${name}.svg`), html);
-          });
-        }
-
-        const htmlDriver = makeHTMLDriver(writeHtmlToFile)
-
-        const vnodes$ = things.map(([actual, ...others]) => renderTestDiagram(name, actual, others));
-
-        htmlDriver(vnodes$, 'this string does nothing');
-
-        // things.addListener({
-        //   next ([actual, ...others]) {
-        //     renderTestDiagram(name, actual, others);
-        //     console.log(actual, others)
-        //   }
-        // });
-
-        Time.run(done);
-      });
-    }
-  }
-
-  function recordStream (stream: Stream<any>, Time: MockTimeSource): Stream<Array<any>> {
-    return stream
-      .compose(Time.record)
-      .last();
-  }
-
-  describe.only('merge', () => {
+  describe('merge', () => {
     asDiagram('merge')('merges two streams', (Time) => {
       const A        = Time.diagram('-----1-----1--|');
       const B        = Time.diagram('--2-----2-----|');

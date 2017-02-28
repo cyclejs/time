@@ -32,7 +32,6 @@ function renderTestDiagram (name: string, actual: Array<any>, others: Array<any>
   )
 }
 
-// TODO: Update snabbdom-to-html with text patch
 function renderLabel (label: string, position: number): VNode {
   return (
     h('text', {
