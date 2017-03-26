@@ -311,10 +311,10 @@ Returns a stream that emits every `period` msec. Starts with zero and increases 
 
 ```js
 const actual$ = Time.periodic(80);
-const expected$ = Time.diagram(`---0---1---2---3---4|`);
+const expected$ = Time.diagram(`----0---1---2---3-`);
 
 Time.assertEqual(
-  actual$.take(5),
+  actual$,
   expected$
 );
 
@@ -408,7 +408,7 @@ Time.run();
 // baz
 ```
 
-#### `assertEqual(actualStream, expectedStream, done)`
+#### `assertEqual(actualStream, expectedStream, comparator = assert.deepEqual)`
 Can be used to assert two streams are equivalent. This is useful when combine with `.diagram` for creating tests.
 
 ```js
@@ -420,7 +420,9 @@ Time.assertEqual(
 );
 
 Time.run();
-
+```
+<!-- skip-example -->
+```js
 // fails
 
 Time.assertEqual(
@@ -431,6 +433,59 @@ Time.assertEqual(
 Time.run(err => console.error(err));
 ```
 
+You can optionally pass a custom comparator function. This is useful if you want to do things like testing your DOM with tools such as [html-looks-like](https://github.com/staltz/html-looks-like).
+
+A custom comparator function should take two arguments: `actual`, and `expected`. It can either return a boolean, or throw an error. If an error is thrown, it will be shown in the error log.
+
+```js
+// returns a boolean
+
+function comparator (actual, expected) {
+  return actual.foo === expected.foo;
+}
+
+// throws an error
+
+function comparator (actual, expected) {
+  if (actual.foo !== expected.foo) {
+    throw new Error(`${actual.foo} should be the same as ${expected.foo}`);
+  }
+}
+```
+
+```js
+// passes
+
+const expected = Time.diagram(
+  `---A---B---C---|`,
+  {
+    A: {foo: 1, bar: 4},
+    B: {foo: 2, bar: 5},
+    C: {foo: 3, bar: 6}
+  }
+);
+
+const actual = Time.diagram(
+  `---A---B---C---|`,
+  {
+    A: {foo: 0, bar: 4},
+    B: {foo: 5, bar: 5},
+    C: {foo: 8, bar: 6}
+  }
+);
+
+function comparator (actual, expected) {
+  return actual.bar === expected.bar;
+}
+
+Time.assertEqual(
+  actual,
+  expected,
+  comparator
+);
+
+Time.run();
+```
 ## License
 
 MIT
