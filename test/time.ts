@@ -80,6 +80,55 @@ describe("@cycle/time", () => {
     Time.run(done);
   });
 
+  it('Time.runPromise has same result', () => {
+    function Counter ({DOM}) {
+      const add$ = DOM
+        .select('.add')
+        .events('click')
+        .mapTo(+1);
+
+      const subtract$ = DOM
+        .select('.subtract')
+        .events('click')
+        .mapTo(-1);
+
+      const change$ = xs.merge(add$, subtract$);
+
+      const add = (a, b) => a + b;
+
+      const count$ = change$.fold(add, 0);
+
+      return {
+        count$
+      }
+    }
+
+    const Time = mockTimeSource();
+
+    const addClick      = '---x-x-x------x-|';
+    const subtractClick = '-----------x----|';
+
+    const expectedCount = '0--1-2-3---2--3-|';
+
+    const DOM = mockDOMSource({
+      '.add': {
+        'click': Time.diagram(addClick)
+      },
+      '.subtract': {
+        'click': Time.diagram(subtractClick)
+      }
+    });
+
+    const counter = Counter({DOM});
+
+    Time.assertEqual(
+      counter.count$,
+      Time.diagram(expectedCount)
+    );
+
+    return Time.runPromise();
+  });
+
   libraries.forEach(library => {
     describe(library.name, () => {
       before(() => setAdapt(library.adapt));

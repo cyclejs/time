@@ -18,4 +18,5 @@ export interface MockTimeSource extends TimeSource {
   record (stream: Stream<any>): Stream<Array<any>>;
   assertEqual (actual: Stream<any>, expected: Stream<any>, comparator?: Comparator): void;
   run (cb?: (err?: Error) => void): void;
+  runPromise() : Promise<boolean>;
 }
