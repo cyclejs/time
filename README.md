@@ -376,6 +376,9 @@ Executes the schedule. This should be called at the end of your test run. Takes 
 
 If no callback is provided, errors will be raised.
 
+#### `runPromise()`
+The same method as `run`, but wrapped in a Promise that will resolve to `true` in the passing case and reject if the test failed.
+
 #### `diagram(diagramString, values = {})`
 A constructor that takes a string representing a stream and returns a stream.
 
