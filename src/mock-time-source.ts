@@ -70,6 +70,14 @@ function mockTimeSource ({interval = 20} = {}): any {
     maxTime = Math.max(newTime, maxTime);
   }
 
+  const run = (doneCallback = raiseError, timeToRunTo = null) => {
+    done = doneCallback;
+    if(!timeToRunTo) {
+      timeToRunTo = maxTime;
+    }
+    runVirtually(scheduler, () => finish(asserts, done), currentTime, setTime, timeToRunTo)
+  }
+
   const timeSource = {
     diagram: makeDiagram(scheduler.add, currentTime, interval, setMaxTime),
     record: makeRecord(scheduler.add, currentTime, interval),
@@ -83,12 +91,9 @@ function mockTimeSource ({interval = 20} = {}): any {
     animationFrames: () => timeSource.periodic(16).map(frame),
     throttleAnimation: makeThrottleAnimation(() => timeSource, scheduler.add, currentTime),
 
-    run (doneCallback = raiseError, timeToRunTo = null) {
-      done = doneCallback;
-      if (!timeToRunTo) {
-        timeToRunTo = maxTime;
-      }
-      runVirtually(scheduler, () => finish(asserts, done), currentTime, setTime, timeToRunTo)
+    run: run,
+    runPromise(timeToRunTo = null) {
+      return new Promise((resolve, reject) => run(err => err ? reject(err) : resolve(true), timeToRunTo));
     },
 
     _scheduler: scheduler.add,
