@@ -85,6 +85,60 @@ describe("@cycle/time", () => {
       before(() => setAdapt(library.adapt));
 
       describe("mockTimeSource", () => {
+        describe(".run", () => {
+          it("calls the done callback after processing events", (done) => {
+            const Time = mockTimeSource();
+
+            const stream = Time.diagram(
+              `---1---2---3---|`
+            );
+
+            const expectedValues = [1, 2, 3];
+
+            stream.take(expectedValues.length).subscribe({
+              next (ev) {
+                assert.equal(ev, expectedValues.shift());
+              },
+
+              complete: () => {},
+              error: done
+            });
+
+            Time.run(done);
+          });
+
+          it("returns a promise that is resolved after the queue processes", (done) => {
+            const Time = mockTimeSource();
+
+            const stream = Time.diagram(
+              `---1---2---3---|`
+            );
+
+            Time.run().then(done);
+          });
+
+          it("calls the promise error callback on failure", (done) => {
+            const Time = mockTimeSource();
+
+            Time.assertEqual(
+              Time.diagram(`---1---2---3---|`),
+              Time.diagram(`---1---2---4---|`)
+            );
+
+            const successCallback = () => {
+              done(new Error(`Expected test to fail`));
+            }
+
+            const failureCallback = (err) => {
+              assert.equal(typeof err.message, 'string');
+
+              done();
+            };
+
+            Time.run().then(successCallback, failureCallback);
+          });
+        });
+
         describe(".diagram", () => {
           it("creates streams from ascii diagrams", (done) => {
             const Time = mockTimeSource();
