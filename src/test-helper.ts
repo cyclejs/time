@@ -7,9 +7,7 @@ function makeTestHelper (options: Object = {}) {
 
       test(Time);
 
-      if (typeof done === 'function') {
-        Time.run(done);
-      } else {
+      if (!done) {
         return new Promise((resolve, reject) => {
           Time.run((err) => {
             if (err) {
@@ -20,6 +18,35 @@ function makeTestHelper (options: Object = {}) {
           });
         });
       }
+
+      if ('end' in done) {
+        // using tape
+        Time.run(done.end);
+        return;
+      }
+
+      if ('fail' in done) {
+        // using jasmine
+
+        Time.run(err => {
+          if (err) {
+            done.fail(err);
+          } else {
+            done();
+          }
+        });
+
+        return;
+      }
+
+      if (typeof done === 'function') {
+        // using mocha
+
+        Time.run(done);
+        return;
+      }
+
+      throw new Error('Could not figure out how to wrap test. Please raise an issue on @cycle/time');
     }
   }
 }

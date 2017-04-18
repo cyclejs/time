@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import {makeTestHelper, mockTimeSource, timeDriver} from '../src/';
+import {makeTestHelper, mockTimeSource, timeDriver} from '../../src/';
 import {mockDOMSource} from '@cycle/dom';
 import xs, {Stream} from 'xstream';
 import {setAdapt} from '@cycle/run/lib/adapt';

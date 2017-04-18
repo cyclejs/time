@@ -1,15 +1,15 @@
-import {Observable} from 'rxjs/Rx';
+import * as most from 'most';
 import {setAdapt} from '@cycle/run/lib/adapt';
 
-import {makeTestHelper} from '../rxjs';
+import {makeTestHelper} from '../../most';
 
 const withTime = makeTestHelper();
 
-describe('rxjs', () => {
-  before(() => setAdapt(stream => Observable.from(stream)));
+describe('most', () => {
+  before(() => setAdapt(stream => most.from(stream as any)));
 
   it('works with @cycle/time', withTime((Time) => {
-    const actual$   = Observable.of('a').let(Time.delay(60));
+    const actual$   = most.of('a').thru(Time.delay(60));
     const expected$ = Time.diagram(`---(a|)`);
 
     Time.assertEqual(actual$, expected$);

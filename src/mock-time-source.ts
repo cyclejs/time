@@ -36,13 +36,7 @@ function finish (asserts, done) {
     const errors = failedAsserts.map(assert => assert.error);
     const error = combineErrors(errors);
 
-    const usingJasmine = 'fail' in done;
-
-    if (usingJasmine) {
-      done.fail(error);
-    } else {
-      done(error);
-    }
+    done(error);
   }
 }
 

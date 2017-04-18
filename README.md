@@ -453,7 +453,6 @@ function comparator (actual, expected) {
 }
 ```
 
-<!-- skip-example -->
 ```js
 // passes
 

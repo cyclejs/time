@@ -1,6 +1,7 @@
-import {makeTestHelper} from '../src/';
 import {setAdapt} from '@cycle/run/lib/adapt';
 import xs from 'xstream';
+
+import {makeTestHelper} from '../../src/';
 
 const withTime = makeTestHelper();
 
