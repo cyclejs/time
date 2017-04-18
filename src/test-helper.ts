@@ -7,12 +7,23 @@ function makeTestHelper (options: Object = {}) {
 
       test(Time);
 
-      if (!done) {
+      // It's hard to differentiate between tape and ava
+      const usingAva = !!done && typeof done.regex === 'function';
+
+      if (!done || usingAva) {
         return new Promise((resolve, reject) => {
           Time.run((err) => {
             if (err) {
+              if (usingAva) {
+                done.fail(err);
+              }
+
               reject(err);
             } else {
+              if (usingAva) {
+                done.pass();
+              }
+
               resolve(true);
             }
           });
