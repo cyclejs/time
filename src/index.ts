@@ -28,6 +28,8 @@ export {
   MockTimeSource,
   mockTimeSource,
 
+  Test,
+  TimeTest,
+  TestHelper,
   makeTestHelper,
-  TestHelper
 };
