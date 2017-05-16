@@ -48,7 +48,9 @@ function checkEqual (completeStore, assert, interval, comparator) {
       } catch (error) {
         rightValue = false;
 
-        assert.unexpectedErrors.push(error);
+        if (usingCustomComparator) {
+          assert.unexpectedErrors.push(error);
+        }
       }
 
       if (rightValue && !rightTime) {

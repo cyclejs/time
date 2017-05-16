@@ -474,14 +474,14 @@ const actual = Time.diagram(
   }
 );
 
-function comparator (actual, expected) {
+function customComparator (actual, expected) {
   return actual.bar === expected.bar;
 }
 
 Time.assertEqual(
   actual,
   expected,
-  comparator
+  customComparator
 );
 
 Time.run();
